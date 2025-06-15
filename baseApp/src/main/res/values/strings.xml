@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="title_dialog_rate">We are working hard for a better user experience. We\'d greatly appreciate if you can tell us about your feeling!</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="feedback">Feedback</string>
+    <string name="oh_no_we_will_try_to_improve">Oh, no! we will try to improve</string>
+    <string name="so_so_we_will_try_to_improve">So so! we will try to improve</string>
+    <string name="pretty_good">Pretty good!</string>
+    <string name="rate_us_on_google_play">Rate us on Google play</string>
+    <string name="the_best_we_can_get">The best we can get</string>
+    <string name="may_be_later">May be later</string>
+    <string name="i_love_it">I love it!</string>
+    <string name="please_wait_loading">Please wait, loading.......</string>
+    <string name="this_action_may_contain_advertisement">(This action may contain advertisement)</string>
+</resources>

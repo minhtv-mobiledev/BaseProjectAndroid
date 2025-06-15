@@ -1,0 +1,35 @@
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        myPublish (MavenPublication) {
+            groupId "com.tech.libBase"
+            artifactId "libBase"
+            version "1.0.0"
+            artifact "$buildDir/outputs/aar/baseApp-release.aar"
+
+
+            pom.withXml {
+                def dependencies = asNode().appendNode('dependencies')
+                configurations.getByName("releaseCompileClasspath").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+                    def dependency = dependencies.appendNode('dependency')
+                    dependency.appendNode('groupId', it.moduleGroup)
+                    dependency.appendNode('artifactId', it.moduleName)
+                    dependency.appendNode('version', it.moduleVersion)
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "https://git.its-global.vn/api/v4/projects/292/packages/maven"
+            credentials(HttpHeaderCredentials) {
+                name = "Private-Token"
+                value = "glpat-ym3bCgDq3LQfspUUPqTm"
+            }
+            authentication {
+                header(HttpHeaderAuthentication)
+            }
+        }
+    }
+}
