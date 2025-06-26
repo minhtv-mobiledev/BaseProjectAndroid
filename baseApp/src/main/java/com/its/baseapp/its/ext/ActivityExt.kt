@@ -18,7 +18,6 @@ fun Activity.onCheckActivityIsFinished(): Boolean {
 }
 
 fun ComponentActivity.onBackActivity() {
-    @PrereleaseSdkCheck
     if (BuildCompat.isAtLeastT()) {
         onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT) {
             finish()

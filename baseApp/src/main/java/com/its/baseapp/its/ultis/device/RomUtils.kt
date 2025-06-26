@@ -6,6 +6,7 @@ import android.util.Log
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.util.Locale
 
 object RomUtils {
     private val TAG = "RomUtils"
@@ -85,7 +86,7 @@ object RomUtils {
         val meizuFlymeOSFlag = getSystemProperty("ro.build.display.id")
         return if (TextUtils.isEmpty(meizuFlymeOSFlag)) {
             false
-        } else meizuFlymeOSFlag!!.contains("flyme") || meizuFlymeOSFlag.toLowerCase()
+        } else meizuFlymeOSFlag!!.contains("flyme") || meizuFlymeOSFlag.lowercase(Locale.getDefault())
             .contains("flyme")
     }
 
