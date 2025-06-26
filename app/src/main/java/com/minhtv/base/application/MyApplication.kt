@@ -20,14 +20,10 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingResult
-import com.draw.animation.BuildConfig
-import com.draw.animation.fragment.WelcomeScreenFragment
-import com.draw.animation.activities.MainActivity
+import com.minhtv.base.activities.MainActivity
 import com.draw.animation.ads.InterstitialAdManager
 import com.draw.animation.ads.InterstitialAdManager2
-import com.draw.animation.billing.BillingRepository
 import com.draw.animation.utils.AppLogger
-import com.draw.animation.utils.GlobalInstance
 import com.draw.animation.utils.ads.AdModId
 import com.draw.animation.utils.ads.NativeAdManager
 import com.minhtv.base.utils.remoteconfig.RemoteConfig
@@ -164,7 +160,6 @@ class MyApplication : Application(),
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         AppLogger.i("MyApplication onCreate called")
 
-        BillingRepository.initBillingClient(this)
 
         // init mobile ads
         val backgroundScope = CoroutineScope(Dispatchers.IO)
@@ -175,22 +170,18 @@ class MyApplication : Application(),
                     return@initialize
                 }
                 shouldLoadAds = false
-                if (!BuildConfig.IS_REALEASED) {
-                    shouldToastInitAdsSDK = false
-                    Toast.makeText(context, "Mobile Ads SDK initialized " , Toast.LENGTH_SHORT).show()
-                }
                 backgroundScope.launch {
-                    if (!BillingRepository.isVip.value!!) {
+//                    if (!BillingRepository.isVip.value!!) {
                         withContext(Dispatchers.Main) {
                             // SDK đã được khởi tạo, có thể load ad
                             InterstitialAdManager2.loadAd(context)
                             if (isMainProcess()) {
                                 RemoteConfig.setupRemoteConfig()
                             }
-                            while (!(InterstitialAdManager2.successFirstLoad || InterstitialAdManager2.isLoadFailed) && !WelcomeScreenFragment.isWelcomeDestroy) {
-                                AppLogger.i("MyApplication wait for interstitial ad to load")
-                                delay(200)
-                            }
+//                            while (!(InterstitialAdManager2.successFirstLoad || InterstitialAdManager2.isLoadFailed) && !WelcomeScreenFragment.isWelcomeDestroy) {
+//                                AppLogger.i("MyApplication wait for interstitial ad to load")
+//                                delay(200)
+//                            }
                             NativeAdManager.instanceHomeScreenContent.preloadAds(context, preloadCount = 1, adUnitId = AdModId.NATIVE_AD_LIST_VIEW)
                             NativeAdManager.instanceLanguageOrSetting.preloadAds(context, preloadCount = 1, adUnitId = AdModId.NATIVE_AD_SETTING)
                             InterstitialAdManager.loadAd(context)
@@ -207,7 +198,7 @@ class MyApplication : Application(),
                             }
                             NativeAdManager.instanceBottomOB.preloadAds(context,  preloadCount = if (showOB) 3 else 1, adUnitId = AdModId.NATIVE_AD_OB)
                         }
-                    }
+//                    }
                 }
             }
 
@@ -225,48 +216,48 @@ class MyApplication : Application(),
         appOpenAdManager = AppOpenAdManager()
     }
 
-    fun handleBilling() {
-        billListener = object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                AppLogger.i("Here come billing setup finished ${billingResult.responseCode}")
-                if (billingResult.responseCode ==  BillingClient.BillingResponseCode.OK) {
-                    isBillingSetUpFinished = true
-                    // The BillingClient is ready. You can query purchases here.
-                    if (true) BillingRepository.isInAppProductPurchased(productId = BillingRepository.ID_LIFETIME_INAPP) { isPurchased ->
-                        if (isPurchased) {
-                            BillingRepository.isVip.postValue(true)
-                            return@isInAppProductPurchased
-                        }
-                    }
-                    BillingRepository.checkIfUserAlreadyPurchased(
-                        BillingRepository.getBillingClient()!!,
-                        BillingRepository.ID_MONTHLY_SUSCRIPTION) {
-                        isBillingSetUpFinished = true
-                        if (it) {
-                            BillingRepository.isVip.postValue(true)
-                            return@checkIfUserAlreadyPurchased
-                        }
-                    }
-                }
-            }
-
-            override fun onBillingServiceDisconnected() {
-                AppLogger.i("Here come billing service disconnected")
-                // Try to restart the connection on the next request to
-                // Google Play by calling the startConnection() method.
-                failedCount++
-                if (failedCount < 3 ) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        delay(500)
-                        BillingRepository.getBillingClient()?.startConnection(billListener)
-                    }
-                } else {
-                    isBillingSetUpFinished =  true
-                }
-            }
-        }
-        BillingRepository.getBillingClient()?.startConnection(billListener)
-    }
+//    fun handleBilling() {
+//        billListener = object : BillingClientStateListener {
+//            override fun onBillingSetupFinished(billingResult: BillingResult) {
+//                AppLogger.i("Here come billing setup finished ${billingResult.responseCode}")
+//                if (billingResult.responseCode ==  BillingClient.BillingResponseCode.OK) {
+//                    isBillingSetUpFinished = true
+//                    // The BillingClient is ready. You can query purchases here.
+//                    if (true) BillingRepository.isInAppProductPurchased(productId = BillingRepository.ID_LIFETIME_INAPP) { isPurchased ->
+//                        if (isPurchased) {
+//                            BillingRepository.isVip.postValue(true)
+//                            return@isInAppProductPurchased
+//                        }
+//                    }
+//                    BillingRepository.checkIfUserAlreadyPurchased(
+//                        BillingRepository.getBillingClient()!!,
+//                        BillingRepository.ID_MONTHLY_SUSCRIPTION) {
+//                        isBillingSetUpFinished = true
+//                        if (it) {
+//                            BillingRepository.isVip.postValue(true)
+//                            return@checkIfUserAlreadyPurchased
+//                        }
+//                    }
+//                }
+//            }
+//
+//            override fun onBillingServiceDisconnected() {
+//                AppLogger.i("Here come billing service disconnected")
+//                // Try to restart the connection on the next request to
+//                // Google Play by calling the startConnection() method.
+//                failedCount++
+//                if (failedCount < 3 ) {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        delay(500)
+//                        BillingRepository.getBillingClient()?.startConnection(billListener)
+//                    }
+//                } else {
+//                    isBillingSetUpFinished =  true
+//                }
+//            }
+//        }
+//        BillingRepository.getBillingClient()?.startConnection(billListener)
+//    }
     /** Khi app chuyển từ background -> foreground */
     override fun onStart(owner: LifecycleOwner) {
         AppLogger.i("MyApplication onStart")
@@ -280,30 +271,30 @@ class MyApplication : Application(),
         } else {
             // từ lần 2 trở đi: show ngay nếu có
             AppLogger.i("MyApplication show ad if available is activity null: ${currentActivity == null}")
-            CoroutineScope(Dispatchers.Main).launch {
-                while (!isBillingSetUpFinished) {
-                    AppLogger.i("MyApplication wait for billing setup finished")
-                    delay(500)
-                }
-                if (GlobalInstance.isJustUseGif) {
-                    GlobalInstance.isJustUseGif = false
-                    return@launch
-                }
-                if (!BillingRepository.isVip.value!!) {
-                    if (System.currentTimeMillis() - lastAdOpenApp < timeOpenAppIntervals * 1000) {
-                        return@launch
-                    }
-                    if (GlobalInstance.shouldDelayShowAOA) {
-                        GlobalInstance.shouldDelayShowAOA = false
-                        return@launch
-                    }
-                    currentActivity?.let {
-                        appOpenAdManager.showAdIfAvailable(it)
-                    }
-                }
-
-
-            }
+//            CoroutineScope(Dispatchers.Main).launch {
+//                while (!isBillingSetUpFinished) {
+//                    AppLogger.i("MyApplication wait for billing setup finished")
+//                    delay(500)
+//                }
+//                if (GlobalInstance.isJustUseGif) {
+//                    GlobalInstance.isJustUseGif = false
+//                    return@launch
+//                }
+//                if (!BillingRepository.isVip.value!!) {
+//                    if (System.currentTimeMillis() - lastAdOpenApp < timeOpenAppIntervals * 1000) {
+//                        return@launch
+//                    }
+//                    if (GlobalInstance.shouldDelayShowAOA) {
+//                        GlobalInstance.shouldDelayShowAOA = false
+//                        return@launch
+//                    }
+//                    currentActivity?.let {
+//                        appOpenAdManager.showAdIfAvailable(it)
+//                    }
+//                }
+//
+//
+//            }
         }
     }
     var lastAdOpenApp = 0L
@@ -345,40 +336,40 @@ class MyApplication : Application(),
 
 
             val request = AdRequest.Builder().build()
-            AppOpenAd.load(
-                this@MyApplication,
-                AdModId.APP_OPEN_ID,
-                request,
-                object : AppOpenAdLoadCallback() {
-                    override fun onAdLoaded(ad: AppOpenAd) {
-                        AppLogger.i("MyApplication ad loaded")
-                        appOpenAd = ad
-                        loadTime = Date().time
-                        if (pendingShow) {
-                            pendingShow = false
-                            if (GlobalInstance.firstOpenApp) {
-                                GlobalInstance.firstOpenApp = false
-                            } else {
-                                currentActivity?.let {
-                                    showAdIfAvailable(it)
-                                }
-                            }
-                        }
-                    }
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        AppLogger.i("MyApplication ad loaded error: ${error.message}")
-                        // Log hoặc xử lý lỗi load
-                        // Retry logic (Exponential backoff)
-//                        if (failedCount < 5) {  // Retry a maximum of 3 times
-//                            failedCount++
-//                            val retryDelay = 1000 * (1 + failedCount) * (1 + failedCount)  // Increase delay for each retry
-//                            Handler(Looper.getMainLooper()).postDelayed({
-//                                InterstitialAdManager.loadAd(context)
-//                            }, retryDelay.toLong())
+//            AppOpenAd.load(
+//                this@MyApplication,
+//                AdModId.APP_OPEN_ID,
+//                request,
+//                object : AppOpenAdLoadCallback() {
+//                    override fun onAdLoaded(ad: AppOpenAd) {
+//                        AppLogger.i("MyApplication ad loaded")
+//                        appOpenAd = ad
+//                        loadTime = Date().time
+//                        if (pendingShow) {
+//                            pendingShow = false
+//                            if (GlobalInstance.firstOpenApp) {
+//                                GlobalInstance.firstOpenApp = false
+//                            } else {
+//                                currentActivity?.let {
+//                                    showAdIfAvailable(it)
+//                                }
+//                            }
 //                        }
-                    }
-                }
-            )
+//                    }
+//                    override fun onAdFailedToLoad(error: LoadAdError) {
+//                        AppLogger.i("MyApplication ad loaded error: ${error.message}")
+//                        // Log hoặc xử lý lỗi load
+//                        // Retry logic (Exponential backoff)
+////                        if (failedCount < 5) {  // Retry a maximum of 3 times
+////                            failedCount++
+////                            val retryDelay = 1000 * (1 + failedCount) * (1 + failedCount)  // Increase delay for each retry
+////                            Handler(Looper.getMainLooper()).postDelayed({
+////                                InterstitialAdManager.loadAd(context)
+////                            }, retryDelay.toLong())
+////                        }
+//                    }
+//                }
+//            )
         }
 
         /** Kiểm tra ad còn hiệu lực (load < 4h trước) */
@@ -392,7 +383,6 @@ class MyApplication : Application(),
             AppLogger.i("Myapplication show ad if available  isShowingAd: $isShowingAd" +
                     " isAdAvailable: ${isAdAvailable()}  isAppnull: ${appOpenAd == null}")
             if (isShowingAd) return
-
             if (!isAdAvailable()) {
                 pendingShow = true
                 loadAd()
